@@ -1,6 +1,6 @@
 # Marcopolo
 
-Marcopolo is a Rack middleware for use in Rails applications (currently) to aid in debugging HTTP requests and responses by logging the *raw* requests and their responses (including headers and body).
+Marcopolo is a Rack middleware for use in Rails applications (currently) to aid in debugging HTTP requests and responses by logging them *raw* (including headers and body).
 
 ## Installation
 
