@@ -31,7 +31,7 @@ You may want to filter out noisy requests, such as health checks. Create a proc 
 
     Marcopolo.options[:filter] = Proc.new do |request|
       # exclude all options requests
-      request.request_method != 'OPTIONS']
+      request.request_method != 'OPTIONS'
     end
 
 ## TODO
