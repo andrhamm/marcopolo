@@ -25,10 +25,18 @@ Consider adding logrotate rules to your application server to prevent these extr
 
 Also, be mindful of cleaning up these logs appropriately, as sensative information like authorization headers and cookies will not be filtered out automatically (hence "raw").
 
+### Filtering out noise
+
+You may want to filter out noisy requests, such as health checks. Create a proc that takes a [Rack::Request](http://rack.rubyforge.org/doc/classes/Rack/Request.html) object and returns `true` if the request is desirable and `false` if the request should be excluded from the log.
+
+    Marcopolo.options[:filter] = Proc.new do |request|
+      # exclude all options requests
+      request.request_method != 'OPTIONS']
+    end
+
 ## TODO
 
 * Support for Sinatra?
-* Noise filters?
 * Ability to disable for certain endpoints, etc
 * IP-based log segmenting?
 * Tests?

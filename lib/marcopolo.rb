@@ -6,7 +6,8 @@ module Marcopolo
   DEFAULT_LOGGER  = Logger.new($stdout)
   DEFAULT_OPTIONS = {
     logger: DEFAULT_LOGGER,
-    severity: Logger::Severity::DEBUG
+    severity: Logger::Severity::DEBUG,
+    filter: Proc.new {|request| true }
   }
 
   class << self
@@ -16,6 +17,10 @@ module Marcopolo
 
     def log(msg)
       options[:logger].add(options[:severity]) { msg }
+    end
+
+    def allow(request)
+      options[:filter].call(request)
     end
   end
 end
