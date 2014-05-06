@@ -36,6 +36,7 @@ You may want to filter out noisy requests, such as health checks. Create a proc 
 
 ## TODO
 
+* Better log formatting!
 * Support for Sinatra?
 * Ability to disable for certain endpoints, etc
 * IP-based log segmenting?
