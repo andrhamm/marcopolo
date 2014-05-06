@@ -21,7 +21,7 @@ Configure the logger settings in a Rails initializer like so:
     Marcopolo.options[:logger] = Logger.new(File.join(Rails.root, 'log', "#{Rails.env}-http-raw.log"))
     Marcopolo.options[:severity] = Logger::Severity::DEBUG
 
-Consider adding logrote rules to your application server to prevent these extremely verbose logs from blowing up your storage.
+Consider adding logrotate rules to your application server to prevent these extremely verbose logs from blowing up your storage.
 
 Also, be mindful of cleaning up these logs appropriately, as sensative information like authorization headers and cookies will not be filtered out automatically (hence "raw").
 
