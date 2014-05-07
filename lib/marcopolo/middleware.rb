@@ -38,12 +38,18 @@ module Marcopolo
       req_headers.to_a.each {|i| req_hash["\t" + i.first] = i.last }
 
       req_hash.merge!({
-        "Request Body" => @request.body.string
+        "Request Body" => request_body
       })
 
       Marcopolo.log req_hash.to_a.map {|o| o.join(': ') }.join("\n") + "\n"
     rescue => e
       Marcopolo.log "Failed to log request: #{e}"
+    end
+
+    def request_body
+      @request.body.read
+    ensure
+      @request.body.rewind
     end
 
     def rawlog_response(status, headers, response)
