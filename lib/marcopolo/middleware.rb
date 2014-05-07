@@ -15,11 +15,11 @@ module Marcopolo
         Marcopolo.log "Filtering request: #{@request.request_method} #{@request.url}"
       end
 
-      @status, @headers, @response = @app.call(env)
+      status, headers, response = @app.call(env)
 
-      rawlog_response(env) if allow
+      rawlog_response(status, headers, response) if allow
 
-      return [@status, @headers, @response]
+      return [status, headers, response]
     end
 
     def rawlog_request(env)
@@ -38,28 +38,32 @@ module Marcopolo
       req_headers.to_a.each {|i| req_hash["\t" + i.first] = i.last }
 
       req_hash.merge!({
-        "Request Body" => @request.body.gets
+        "Request Body" => @request.body.string
       })
 
       Marcopolo.log req_hash.to_a.map {|o| o.join(': ') }.join("\n") + "\n"
+    rescue => e
+      Marcopolo.log "Failed to log request: #{e}"
     end
 
-    def rawlog_response(env)
+    def rawlog_response(status, headers, response)
       resp_hash = {
         "RESPONSE" => "",
-        "Response Status" => @status,
+        "Response Status" => status,
         "Response Headers" => ""
       }
 
-      @headers.to_a.each {|i| resp_hash["\t" + i.first] = i.last }
+      headers.to_a.each {|i| resp_hash["\t" + i.first] = i.last }
 
-      response_body = @response.respond_to?(:body) ? @response.body : @response
+      response_body = response.respond_to?(:body) ? response.body : response
 
       resp_hash.merge!({
         "Response Body" => response_body
       })
 
       Marcopolo.log resp_hash.to_a.map {|o| o.join(': ') }.join("\n") + "\n"
+    rescue => e
+      Marcopolo.log "Failed to log response: #{e}"
     end
   end
 end
