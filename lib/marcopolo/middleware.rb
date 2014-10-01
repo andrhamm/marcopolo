@@ -5,21 +5,21 @@ module Marcopolo
     end
 
     def call(env)
-      @request = Rack::Request.new(env)
+      @request = Rack::Request.new env
 
-      allow = Marcopolo.allow(@request)
+      allow = Marcopolo.allow? @request
 
       if allow
-        rawlog_request(env)
+        rawlog_request env
       else
         Marcopolo.log "Filtering request: #{@request.request_method} #{@request.url}"
       end
 
-      status, headers, response = @app.call(env)
+      status, headers, response = @app.call env
 
       rawlog_response(status, headers, response) if allow
 
-      return [status, headers, response]
+      [status, headers, response]
     end
 
     def rawlog_request(env)
@@ -42,6 +42,10 @@ module Marcopolo
       })
 
       Marcopolo.log req_hash.to_a.map {|o| o.join(': ') }.join("\n") + "\n"
+
+      Marcopolo.listeners.each do |guid, listener|
+        listener << req_hash
+      end
     rescue => e
       Marcopolo.log "Failed to log request: #{e}"
     end
@@ -63,11 +67,13 @@ module Marcopolo
 
       response_body = response.respond_to?(:body) ? response.body : response
 
-      resp_hash.merge!({
-        "Response Body" => response_body
-      })
+      resp_hash.merge! :"Response Body" => response_body
 
       Marcopolo.log resp_hash.to_a.map {|o| o.join(': ') }.join("\n") + "\n"
+
+      Marcopolo.listeners.each do |guid, listener|
+        listener << resp_hash
+      end
     rescue => e
       Marcopolo.log "Failed to log response: #{e}"
     end

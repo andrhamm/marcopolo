@@ -1,6 +1,8 @@
 require "marcopolo/version"
 require 'marcopolo/middleware'
 require 'marcopolo/rails' if defined?(Rails)
+require 'uuid'
+require 'logger'
 
 module Marcopolo
   DEFAULT_LOGGER  = Logger.new($stdout)
@@ -9,6 +11,12 @@ module Marcopolo
     severity: Logger::Severity::DEBUG,
     filter: Proc.new {|request| true }
   }
+
+  class Listener
+    def initialize()
+
+    end
+  end
 
   class << self
     def options
@@ -19,8 +27,33 @@ module Marcopolo
       options[:logger].add(options[:severity]) { msg }
     end
 
-    def allow(request)
+    def allow?(request)
       options[:filter].call(request)
+    end
+
+    def capture(stream=[], opts={}, &block)
+      raise unless block_given?
+      max = opts.key?(:max) ? opts[:max] : 10
+
+      listener_id = Marcopolo.add_listener stream
+      yield
+      true
+    ensure
+      Marcopolo.remove_listener listener_id
+    end
+
+    def add_listener(listener)
+      guid = UUID.new.generate
+      listeners[guid] = listener
+      guid
+    end
+
+    def remove_listener(guid)
+      listeners.delete guid
+    end
+
+    def listeners
+      @@listeners ||= {}
     end
   end
 end
